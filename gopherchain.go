@@ -64,7 +64,7 @@ func main() {
 
 		previousBlock = newBlock
 
-		time.Sleep(1000 * time.Millisecond)
+		time.Sleep(1000 * time.Millisecond) //simulate block creation by delaying output
 
 	}
 
