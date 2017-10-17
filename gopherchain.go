@@ -29,6 +29,25 @@ func genesis() Block {
 
 }
 
+func workProof(newBlock Block) string {
+
+	var sha = sha256.New()
+	bruteString := "Try it out!"
+	var tryString string
+
+	for ((strconv.Itoa(newBlock.index) + newBlock.timestamp.String() + newBlock.data + tryString) != newBlock.previousHash) {
+			sha.Write([]byte(bruteString))
+			tryString = hex.EncodeToString(sha.Sum(nil))
+			bruteString = tryString
+			fmt.Printf(newBlock.previousHash)
+			fmt.Printf(" | ")
+			fmt.Printf(tryString)
+			fmt.Printf("\n\n")
+	}
+
+	return "Found!"
+}
+
 func nextBlock(lastBlock Block) Block {
 
 	blockIndex := lastBlock.index + 1
@@ -53,18 +72,25 @@ func main() {
 
 	for e:= blockchain.Front(); e != nil; e = e.Next() {
 		newBlock := nextBlock(previousBlock)
-		blockchain.PushBack(newBlock)
+		proof := workProof(newBlock)
 
-		fmt.Printf("[HEIGHT]: ")
-		fmt.Printf(strconv.Itoa(previousBlock.index))
-		fmt.Printf("\n")
-		fmt.Printf("Block ")
-		fmt.Printf(previousBlock.previousHash)
-		fmt.Printf(" has been added to the blockchain!\n")
+		if (proof == "Found!") {
+			blockchain.PushBack(newBlock)
+
+			fmt.Printf("[HEIGHT]: ")
+			fmt.Printf(strconv.Itoa(previousBlock.index))
+			fmt.Printf("\n")
+			fmt.Printf("Block ")
+			fmt.Printf(previousBlock.previousHash)
+			fmt.Printf(" has been added to the blockchain!\n")
+
+		}
+
+
 
 		previousBlock = newBlock
 
-		time.Sleep(1000 * time.Millisecond) //simulate block creation by delaying output
+		time.Sleep(100000 * time.Millisecond) //simulate block creation by delaying output
 
 	}
 
