@@ -37,38 +37,49 @@ func nextBlock(lastBlock Block) Block {
 	blockTime := time.Now().String()
 	blockData := "This is block " + strconv.Itoa(blockIndex)
 	previousHash := lastBlock.previousHash
-
-	var sha = sha256.New()
 	tryString := lastBlock.previousHash
 	rand.Seed(time.Now().UnixNano())
 	nonce := make([]byte, 4)
 	rand.Read(nonce)
+	var blockStringSum string
+	// <Proof of work>
+	//hashString := "00000" + lastBlock.previousHash[5:len(lastBlock.previousHash)]
+	// if lastblock.previousHash first 5 bytes is 0, then ok, else increment nonce
+	for (tryString != "") {
+		var sha = sha256.New()
 
-	hashString := "00000" + lastBlock.previousHash[5:len(lastBlock.previousHash)]
+		blockStringSum = tryString + hex.EncodeToString(nonce)
+		sha.Write([]byte(blockStringSum))
 
-	for ((tryString[:5]) != hashString[:5]) {
+		fmt.Printf(blockStringSum)
+		fmt.Printf("\n")
 
+		blockStringSum = hex.EncodeToString(sha.Sum(nil))
 
-			sha.Write([]byte(tryString))
-			tryString = hex.EncodeToString(sha.Sum(nil))
-			tryString = tryString + hex.EncodeToString(nonce)
-			fmt.Printf(tryString)
-			fmt.Printf("\n\n")
+		fmt.Printf(blockStringSum)
+		fmt.Printf("\n\n")
 
+		if (blockStringSum[:5] == "00000") {
+			break;
+		} else {
 			nonce[3]++
+			sha.Reset()
+		}
 	}
-
- 	blockString := strconv.Itoa(blockIndex) + blockTime + blockData + previousHash + tryString
-	var sha2 = sha256.New()
-	sha2.Write([]byte(blockString))
 
 	t, err := os.Create("height")
 	check(err)
 	n, err := t.WriteString(strconv.Itoa(blockIndex))
 	fmt.Printf("Written height to file", n)
 	t.Sync()
+	// </Proof of work>
 
-	return Block {blockIndex, time.Now(), blockData, hex.EncodeToString(sha2.Sum(nil)) }
+	blockString := strconv.Itoa(blockIndex) + blockTime + blockData + previousHash + tryString
+	var sha2 = sha256.New()
+	sha2.Write([]byte(blockString))
+	blockStringSum = hex.EncodeToString(sha2.Sum(nil))
+
+	return Block {blockIndex, time.Now(), blockData, blockStringSum }
 
 }
 
