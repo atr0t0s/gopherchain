@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"container/list"
 	"fmt"
+  "math/rand"
 )
 
 type Block struct {
@@ -29,20 +30,26 @@ func genesis() Block {
 
 }
 
-func workProof(newBlock Block) string {
+func doWork(newBlock Block) string {
 
 	var sha = sha256.New()
-	bruteString := "Try it out!"
-	var tryString string
+	tryString := "Try it out!"
+	nonce := rand.Intn(10000)
+	hashString := "0000" + newBlock.previousHash
 
-	for ((strconv.Itoa(newBlock.index) + newBlock.timestamp.String() + newBlock.data + tryString) != newBlock.previousHash) {
-			sha.Write([]byte(bruteString))
+	for ((tryString[:4]) != hashString[:4]) {
+
+
+			sha.Write([]byte(tryString))
 			tryString = hex.EncodeToString(sha.Sum(nil))
-			bruteString = tryString
+			tryString = tryString + strconv.Itoa(nonce)
+
 			fmt.Printf(newBlock.previousHash)
 			fmt.Printf(" | ")
 			fmt.Printf(tryString)
 			fmt.Printf("\n\n")
+
+			nonce++
 	}
 
 	return "Found!"
@@ -72,7 +79,7 @@ func main() {
 
 	for e:= blockchain.Front(); e != nil; e = e.Next() {
 		newBlock := nextBlock(previousBlock)
-		proof := workProof(newBlock)
+		proof := doWork(newBlock)
 
 		if (proof == "Found!") {
 			blockchain.PushBack(newBlock)
@@ -84,15 +91,14 @@ func main() {
 			fmt.Printf(previousBlock.previousHash)
 			fmt.Printf(" has been added to the blockchain!\n")
 
+			proof = "Unfound"
+
 		}
-
-
 
 		previousBlock = newBlock
 
-		time.Sleep(100000 * time.Millisecond) //simulate block creation by delaying output
+		time.Sleep(10000 * time.Millisecond) //simulate block creation by delaying output
 
 	}
 
 }
-
