@@ -34,7 +34,10 @@ func doWork(newBlock Block) string {
 
 	var sha = sha256.New()
 	tryString := "Try it out!"
-	nonce := rand.Intn(10000)
+
+	nonce := make([]byte, 4)
+  rand.Read(nonce)
+
 	hashString := "00000" + newBlock.previousHash[5:len(newBlock.previousHash)]
 
 	for ((tryString[:5]) != hashString[:5]) {
@@ -42,12 +45,12 @@ func doWork(newBlock Block) string {
 
 			sha.Write([]byte(tryString))
 			tryString = hex.EncodeToString(sha.Sum(nil))
-			tryString = tryString + strconv.Itoa(nonce)
-
-			fmt.Printf(tryString)
+			tryString = tryString + hex.EncodeToString(nonce)
+			fmt.Printf(hex.EncodeToString(nonce))
+			//fmt.Printf(tryString)
 			fmt.Printf("\n\n")
 
-			nonce++
+			nonce[0]++
 	}
 
 	return "Found!"
