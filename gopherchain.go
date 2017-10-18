@@ -35,17 +35,15 @@ func doWork(newBlock Block) string {
 	var sha = sha256.New()
 	tryString := "Try it out!"
 	nonce := rand.Intn(10000)
-	hashString := "0000" + newBlock.previousHash
+	hashString := "00000" + newBlock.previousHash[5:len(newBlock.previousHash)]
 
-	for ((tryString[:4]) != hashString[:4]) {
+	for ((tryString[:5]) != hashString[:5]) {
 
 
 			sha.Write([]byte(tryString))
 			tryString = hex.EncodeToString(sha.Sum(nil))
 			tryString = tryString + strconv.Itoa(nonce)
 
-			fmt.Printf(newBlock.previousHash)
-			fmt.Printf(" | ")
 			fmt.Printf(tryString)
 			fmt.Printf("\n\n")
 
