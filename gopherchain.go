@@ -46,8 +46,7 @@ func doWork(newBlock Block) string {
 			sha.Write([]byte(tryString))
 			tryString = hex.EncodeToString(sha.Sum(nil))
 			tryString = tryString + hex.EncodeToString(nonce)
-			fmt.Printf(hex.EncodeToString(nonce))
-			//fmt.Printf(tryString)
+			fmt.Printf(tryString)
 			fmt.Printf("\n\n")
 
 			nonce[0]++
