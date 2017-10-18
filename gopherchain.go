@@ -16,7 +16,9 @@ type Block struct {
 	index int
 	timestamp time.Time
 	data string
+	pow string
 	previousHash string
+	thisHash string
 
 }
 
@@ -25,7 +27,7 @@ func genesis() Block {
 	var sha = sha256.New()
 	sha.Write([]byte("This is Gopher, building your chain!"))
 
-	genesisBlock := Block {0, time.Now(), "This is the Genesis block", hex.EncodeToString(sha.Sum(nil))}
+	genesisBlock := Block {0, time.Now(), "This is the Genesis block", "Genesis", hex.EncodeToString(sha.Sum(nil)), ""}
 
 	return genesisBlock
 
@@ -34,21 +36,18 @@ func genesis() Block {
 func nextBlock(lastBlock Block) Block {
 
 	blockIndex := lastBlock.index + 1
-	blockTime := time.Now().String()
 	blockData := "This is block " + strconv.Itoa(blockIndex)
 	previousHash := lastBlock.previousHash
-	tryString := lastBlock.previousHash
 	rand.Seed(time.Now().UnixNano())
 	nonce := make([]byte, 4)
 	rand.Read(nonce)
 	var blockStringSum string
 	// <Proof of work>
-	//hashString := "00000" + lastBlock.previousHash[5:len(lastBlock.previousHash)]
-	// if lastblock.previousHash first 5 bytes is 0, then ok, else increment nonce
-	for (tryString != "") {
+
+	for (previousHash != "") {
 		var sha = sha256.New()
 
-		blockStringSum = tryString + hex.EncodeToString(nonce)
+		blockStringSum = previousHash + hex.EncodeToString(nonce)
 		sha.Write([]byte(blockStringSum))
 
 		fmt.Printf(blockStringSum)
@@ -59,10 +58,10 @@ func nextBlock(lastBlock Block) Block {
 		fmt.Printf(blockStringSum)
 		fmt.Printf("\n\n")
 
-		if (blockStringSum[:5] == "00000") {
+		if (blockStringSum[:3] == "000") {
 			break;
 		} else {
-			nonce[3]++
+			nonce[2]++
 			sha.Reset()
 		}
 	}
@@ -72,14 +71,11 @@ func nextBlock(lastBlock Block) Block {
 	n, err := t.WriteString(strconv.Itoa(blockIndex))
 	fmt.Printf("Written height to file", n)
 	t.Sync()
+
+	proof := hex.EncodeToString(nonce)
 	// </Proof of work>
 
-	blockString := strconv.Itoa(blockIndex) + blockTime + blockData + previousHash + tryString
-	var sha2 = sha256.New()
-	sha2.Write([]byte(blockString))
-	blockStringSum = hex.EncodeToString(sha2.Sum(nil))
-
-	return Block {blockIndex, time.Now(), blockData, blockStringSum }
+	return Block {blockIndex, time.Now(), blockData, proof, previousHash, blockStringSum }
 
 }
 
@@ -111,13 +107,13 @@ os.O_CREATE, 0600)
 		fmt.Printf(strconv.Itoa(newBlock.index))
 		fmt.Printf("\n")
 		fmt.Printf("Block ")
-		fmt.Printf(newBlock.previousHash)
+		fmt.Printf(newBlock.thisHash)
 		fmt.Printf(" has been added to the blockchain!\n")
 
 		heightLabel := "[HEIGHT]: "
 		height := strconv.Itoa(newBlock.index)
 		blockLabel := "Block: "
-		block := newBlock.previousHash
+		block := newBlock.thisHash
 
 		blockInfo := heightLabel + height + " \n" + blockLabel + block + "\n"
 		n, err := f.WriteString(blockInfo)
