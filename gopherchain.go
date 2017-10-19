@@ -43,7 +43,7 @@ func nextBlock(lastBlock Block) Block {
 	newnonce := binary.LittleEndian.Uint32(nonce)
 
 	var blockStringSum string
-	// <Proof of work>
+	// ---------------------- <Proof of work> ------------------------------ //
 
 	for (previousHash != "") {
 		var sha = sha256.New()
@@ -70,7 +70,7 @@ func nextBlock(lastBlock Block) Block {
 	t.Sync()
 
 	proof := hex.EncodeToString(nonce)
-	// </Proof of work>
+	// ---------------------- </Proof of work> ------------------------------ //
 
 	return Block {blockIndex, time.Now(), blockData, proof, previousHash, blockStringSum }
 
