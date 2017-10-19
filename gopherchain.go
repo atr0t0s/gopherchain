@@ -34,21 +34,25 @@ func genesis() Block {
 }
 
 func nextBlock(lastBlock Block) Block {
-	blockIndex := lastBlock.index + 1
-	blockData := "This is block " + strconv.Itoa(blockIndex)
-	previousHash := lastBlock.thisHash
-	rand.Seed(time.Now().UnixNano())
-	nonce := make([]byte, 4)
-	rand.Read(nonce)
-	newnonce := binary.LittleEndian.Uint32(nonce)
+
+	blockIndex := lastBlock.index + 1 													// append the blockchain height for this block
+	blockData := "This is block " + strconv.Itoa(blockIndex)		// just some data (should be json)
+	previousHash := lastBlock.thisHash 													// string that contains the hash of the previous block
+	rand.Seed(time.Now().UnixNano()) 														// seeding the randomizer based on current time
+	nonce := make([]byte, 4)																		// create a 4 byte long nonce variable
+	rand.Read(nonce)																						// populate nonce with a random value
+	newnonce := binary.LittleEndian.Uint32(nonce)								// get the 4 byte integer representation of the nonce
 
 	var blockStringSum string
 	// ---------------------- <Proof of work> ------------------------------ //
 
-	for (previousHash != "") {
-		var sha = sha256.New()
-			str := fmt.Sprint(newnonce)
-			blockStringSum = str + previousHash
+	for (previousHash != "") {																	// to keep an infinite loop while we do work
+		var sha = sha256.New()																		// new SHA256 "object"
+			str := fmt.Sprint(newnonce)															// get the unsigned integer into a string
+			blockStringSum = str + previousHash											// append the nonce to the hash of the previous block.
+																															// - normally this should contain the version, previous hash,
+																															// - nonce, block header, etc.
+																															
 			sha.Write([]byte(blockStringSum))
 			blockStringSum = hex.EncodeToString(sha.Sum(nil))
 
