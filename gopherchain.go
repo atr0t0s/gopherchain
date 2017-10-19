@@ -35,37 +35,62 @@ func genesis() Block {
 
 func nextBlock(lastBlock Block) Block {
 
-	blockIndex := lastBlock.index + 1 													// append the blockchain height for this block
-	blockData := "This is block " + strconv.Itoa(blockIndex)		// just some data (should be json)
-	previousHash := lastBlock.thisHash 													// string that contains the hash of the previous block
-	rand.Seed(time.Now().UnixNano()) 														// seeding the randomizer based on current time
-	nonce := make([]byte, 4)																		// create a 4 byte long nonce variable
-	rand.Read(nonce)																						// populate nonce with a random value
-	newnonce := binary.LittleEndian.Uint32(nonce)								// get the 4 byte integer representation of the nonce
+	blockIndex := lastBlock.index + 1
+	// append the blockchain height for this block
+	blockData := "This is block " + strconv.Itoa(blockIndex)
+	// just some data (should be json)
+	previousHash := lastBlock.thisHash
+	// string that contains the hash of the previous block
+	rand.Seed(time.Now().UnixNano())
+	// seeding the randomizer based on current time
+	nonce := make([]byte, 4)
+	// create a 4 byte long nonce variable
+	rand.Read(nonce)
+	// populate nonce with a random value
+	newnonce := binary.LittleEndian.Uint32(nonce)
+	// get the 4 byte integer representation of the nonce
 
 	var blockStringSum string
+	// variabel to store a sum of the string to be hashed
+
 	// ---------------------- <Proof of work> ------------------------------ //
 
-	for (previousHash != "") {																	// to keep an infinite loop while we do work
-		var sha = sha256.New()																		// new SHA256 "object"
-			str := fmt.Sprint(newnonce)															// get the unsigned integer into a string
-			blockStringSum = str + previousHash											// append the nonce to the hash of the previous block.
-																															// - normally this should contain the version, previous hash,
-																															// - nonce, block header, etc.
-																															
-			sha.Write([]byte(blockStringSum))
-			blockStringSum = hex.EncodeToString(sha.Sum(nil))
+	for (previousHash != "") {
+	// to keep an infinite loop while we do work
 
-			fmt.Printf(blockStringSum)
-			fmt.Printf("\n")
+		var sha = sha256.New()
+		// new SHA256 "object"
 
-			if (blockStringSum[:4] == "0000") {
-				break
-			} else {
-				newnonce++
-				sha.Reset()
-			}
+		str := fmt.Sprint(newnonce)
+		// get the unsigned integer into a string
+
+		blockStringSum = str + previousHash
+		// append the nonce to the hash of the previous block.
+		// - normally this should contain the version, previous hash,
+		// - nonce, block header, etc.
+
+		sha.Write([]byte(blockStringSum))
+		// pass the "blockStringSum" through SHA256
+
+		blockStringSum = hex.EncodeToString(sha.Sum(nil))
+		// get the digest of the SHA256 function on above string
+
+		fmt.Printf(blockStringSum)
+		fmt.Printf("\n")
+
+		if (blockStringSum[:4] == "0000") {
+		// check if difficulty meets target - in this example,
+		// - difficulty is set statically to 4 0s.
+
+			break
+			// if target is met, break the loop
+
+		} else {
+			newnonce++
+			// if difficulty is not met, append the nonce and try again
+			sha.Reset()
 		}
+	}
 
 	t, err := os.Create("height")
 	check(err)
