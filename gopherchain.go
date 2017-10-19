@@ -37,16 +37,22 @@ func nextBlock(lastBlock Block) Block {
 
 	blockIndex := lastBlock.index + 1
 	// append the blockchain height for this block
+
 	blockData := "This is block " + strconv.Itoa(blockIndex)
 	// just some data (should be json)
+
 	previousHash := lastBlock.thisHash
 	// string that contains the hash of the previous block
+
 	rand.Seed(time.Now().UnixNano())
 	// seeding the randomizer based on current time
+
 	nonce := make([]byte, 4)
 	// create a 4 byte long nonce variable
+
 	rand.Read(nonce)
 	// populate nonce with a random value
+	
 	newnonce := binary.LittleEndian.Uint32(nonce)
 	// get the 4 byte integer representation of the nonce
 
