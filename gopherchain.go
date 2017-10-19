@@ -8,7 +8,7 @@ import (
 	"container/list"
 	"fmt"
 	"os"
-  "math/rand"
+	"math/rand"
 	"encoding/binary"
 )
 
@@ -59,6 +59,8 @@ func nextBlock(lastBlock Block) Block {
 	var blockStringSum string
 	// variabel to store a sum of the string to be hashed
 
+	target := "00000100000000070BFB00000000000000000000000000000000000000000000"
+
 	// ---------------------- <Proof of work> ------------------------------ //
 
 	for (previousHash != "") {
@@ -84,9 +86,8 @@ func nextBlock(lastBlock Block) Block {
 		fmt.Printf(blockStringSum)
 		fmt.Printf("\n")
 
-		if (blockStringSum[:4] == "0000") {
-		// check if difficulty meets target - in this example,
-		// - difficulty is set statically to 4 0s.
+		if (blockStringSum < target) {
+		// check if difficulty meets target
 
 			break
 			// if target is met, break the loop
